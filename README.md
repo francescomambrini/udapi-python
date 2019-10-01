@@ -1,9 +1,18 @@
-# udapi-python
-Python framework for processing Universal Dependencies data
+# udapi-python (AGLDT version)
+Python framework for processing Universal Dependencies data. 
+
+**Forked version** with special support for the Ancient 
+Greek and Latin Dependency Treebank ([AGLDT](https://perseusdl.github.io/treebank_data/)) 
+and [Daphne](https://github.com/francescomambrini/Daphne)
 
 [![Build Status](https://travis-ci.org/udapi/udapi-python.svg?branch=master)](https://travis-ci.org/udapi/udapi-python)
 [![Website](https://img.shields.io/website-up-down-green-red/http/udapi.github.io.svg)](http://udapi.github.io)
 [![Documentation Status](https://readthedocs.org/projects/udapi/badge/)](http://udapi.readthedocs.io)
+
+## Differences with main `udapi-python`
+
+No substantial change is made to the core and the main blocks. Special block module `block.agldt` with some dedicated blocks 
+added.
 
 ## Requirements
 - You need Python 3.3 or higher.
