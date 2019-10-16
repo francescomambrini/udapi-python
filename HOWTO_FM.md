@@ -8,7 +8,8 @@ repo, they have to be pulled manually. [Here](https://www.youtube.com/watch?v=-z
 to do it:
 
 * first, check if you have already set the `upstream` remote: `git remote -v`
-* if not, then configure it: `git remote add upstream https://github.com/udapi/udapi-python.git`
+* if not, then configure it: `git remote add upstream https://github.com/udapi/udapi-python.git` 
+(or `git@github.com:udapi/udapi-python.git` for SSH)
 * fetch changes from the upstream: `git fetch upstream`
 * new commits are saved in a branch called `upstream/master`; if we want to include them in our 
 master branch we must `merge` them: `git merge upstream/master`
