@@ -14,3 +14,13 @@ to do it:
 * new commits are saved in a branch called `upstream/master`; if we want to include them in our 
 master branch we must `merge` them: `git merge upstream/master`
 * now we can also push them to our GitHub repo: `git push origin master` 
+
+# How to convert with Udapi
+
+To read/write from filelists:
+
+```bash
+udapy agldt.ReadConlluList files=@inputlist.txt \
+    [YOUR BLOCKS] \
+    agldt.WriteConlluList files=@outputlist.txt
+```
