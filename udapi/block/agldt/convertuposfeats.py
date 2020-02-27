@@ -9,8 +9,14 @@ def verb2part(tag):
         tag = 't' + tag[1:]
     return tag
 
+def pronNoPers(tag):
+    if re.search(r'^p[123]', tag):
+        tag = 'p-' + tag[2:]
+    return tag
+
 def normalize_tag(tag):
     tag = verb2part(tag)
+    tag = pronNoPers(tag)
     tag = tag.replace('_', '-')
     return tag
 
