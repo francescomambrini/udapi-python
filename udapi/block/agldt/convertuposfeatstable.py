@@ -1,3 +1,7 @@
+"""
+Use UD conversion table to generate the features.
+"""
+
 from udapi.core.block import Block
 import udapi
 import re
