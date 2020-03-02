@@ -82,6 +82,11 @@ class SetSpaceAfter(Block):
             else:
                 if node.form in ['[', '(']:
                     nospace = True
+                # In Tragedy, a single quote as token is generally the product of prodelision
+                # e.g. ἐγὼ ' φύλαξα < ἐγὼ 'φύλαξα < ἐγὼ ἐφύλαξα, so no space after.
+                # Warning! Other tokenizers may behave differently...
+                elif node.form == "'":
+                    nospace = True
                 if self._followed_by_punct(node):
                     nospace = True
                 if self._is_hyphenated_conj(node):

@@ -1,3 +1,8 @@
+"""Generates the UD Upos based on the AGLDT morphological annotation.
+It presupposes a CoNLL representation where the AGLDT postag is stored in the node.xpos
+
+"""
+
 from udapi.core.block import Block
 
 
@@ -10,7 +15,7 @@ cord_conjs =  ['-δέ', '-τε', 'δέ', 'εἴτε', 'εἶτα', 'ἤ
          'οὐδέ', 'οὐδέ', 'οὔτε', 'τε', 'ἀλλά', 'ἀλλά', 'ἠδέ', 'ἠδέ1',  'ἤτε1', 'ἰδέ', 'ἰδέ1', 'ἔπειτα']
 
 dets = ['ἐμός', 'σός', 'ἡμέτερος','ὑμέτερος', 'νωΐτερος', 'σφέτερος', 'ἐμαυτοῦ', 'σαυτοῦ', 'ἑαυτοῦ',
-        'ἄλλος', 'ὅδε', 'οὗτος', 'ἐκεῖνος', 'τόσος', 'τοσόσδε', 'ὁ',
+        'ἄλλος', 'ὅδε', 'οὗτος', 'ἐκεῖνος', 'τόσος', 'τοσόσδε', 'ὁ', 'οὐδείς',
         'τοσοῦτος', 'τοῖος', 'τοιόσδε', 'τοιοῦτος', 'τήλικος', 'τηλικόσδε',
         'τηλικοῦτος', 'τίς', 'πότερος', 'πόσος', 'ποῖος', 'πηλίκος', 'πᾶς',
         'ὁποῖος', 'ὅσος', 'ὁπόσος', 'ὁπότερος', 'ἡλίκος', 'ὁπηλίκος', 'τις',
@@ -41,10 +46,10 @@ class CreateUpos(Block):
         elif node.xpos[0] == 'u':
             newupos = 'PUNCT'
         elif node.xpos[0] == 'c':
-            if newupos in cord_conjs:
+            if node.lemma in cord_conjs:
                 newupos = "CCONJ"
             else:
-                newupos[0] = 'SCONJ'
+                newupos = 'SCONJ'
         elif node.xpos[0] in ['v', 't']:
             if node.deprel == "AuxV":
                 newupos = "AUX"
@@ -53,5 +58,7 @@ class CreateUpos(Block):
 
         if node.lemma in dets:
             newupos = 'DET'
+        if node.misc["NodeType"] == 'Artificial':
+            newupos = '_'
 
         node.upos = newupos

@@ -1,4 +1,14 @@
+"""Populates the FEATS column based on the AGLDT morphological annotation.
+Note that the Tense feat is hardly compatible with the "tense" slot of the guidelines for AGDT, due to the peculiar
+nature of what we traditionally call "tense" of Greek verbs, and that in UD terms is more a combination of tense and
+aspect.
+Therefore, it is left empty in most cases. Users interest in retrieving the Greek 'aorists' or 'perfect' should rather query
+the 4th position (indexed from 1) of the xpos tag than rely on the Tense feat.
+"""
+
+
 from udapi.core.block import Block
+import logging
 
 
 # Pronouns
@@ -6,7 +16,7 @@ pron_dem = ['ἐκεῖνος', 'ὅδε', 'οὗτος', 'τοσόσδε', 'τ�
             'τοῖος', 'τοσοῦτος', 'τόσος']
 pron_ind = ['τις', 'ἄλλος', 'ἕκαστος']
 pron_int = ['τίς', 'πόσος', 'ποῖος', 'ὁποῖος', 'ὁπόσος', 'πότερος', 'ποῦ', 'πῆ', 'πότε']
-pron_neg = ['ουδείς', 'οὔτις', 'μηδείς']
+pron_neg = ['ουδείς', 'οὐδείς', 'οὔτις', 'μηδείς']
 pron_per = ['ἕ', 'αὐτός', 'νιν', 'σύ', 'ἐγώ', 'ἐγώγε', 'σφεῖς', 'ἡμεῖς', 'ὑμεῖς']
 pron_poss = ['ἐμός', 'ἡμέτερος', 'ἐμός', 'σός', 'ὑμέτερος', 'νωΐτερος', 'σφέτερος']
 pron_refl = ['ἐμαυτοῦ', 'σαυτοῦ', 'ἑαυτοῦ', ]
@@ -21,7 +31,14 @@ ptcl = ['ἆρα', 'ἀτάρ', 'αὐτάρ', 'αὖ', 'γάρ', 'γε', 'γο�
 
 class CreateFeats(Block):
     def process_node(self, node):
-        _, per, num, tense, mood, voice, gen, case, deg = [t for t in node.xpos]
+        if node.misc["NodeType"] == 'Artificial':
+            return None
+        try:
+            _, per, num, tense, mood, voice, gen, case, deg = [t for t in node.xpos]
+        except ValueError:
+            logging.error(f'{node.form}: malformed tag ({node.xpos})')
+            return None
+
         # Person feature
         if per in ['1', '2', '3']:
             node.feats["Person"] = per
