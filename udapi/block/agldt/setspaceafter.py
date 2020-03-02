@@ -56,8 +56,22 @@ class SetSpaceAfter(Block):
             return True
         return False
 
+    def _is_hyphenated_conj(self, node):
+        if node.next_node:
+            nf = node.next_node.form
+            nl = node.next_node.lemma
+            if nf[0] == '-' and nl in ['δέ', 'τε']:
+                return True
+        return False
+
+
+
     def _followed_by_punct(self, node):
-        pass
+        if node.next_node:
+            nf = node.next_node.form
+            if nf in punct:
+                return True
+        return False
 
     def process_tree(self, tree):
         for node in tree.descendants:
@@ -66,7 +80,11 @@ class SetSpaceAfter(Block):
             if node.misc['SpaceAfter'] == 'No':
                 continue
             else:
+                if node.form in ['[', '(']:
+                    nospace = True
                 if self._followed_by_punct(node):
+                    nospace = True
+                if self._is_hyphenated_conj(node):
                     nospace = True
                 if self._is_krasis(node):
                     nospace = True
@@ -78,7 +96,5 @@ class SetSpaceAfter(Block):
                 node.misc['SpaceAfter'] = 'No'
 
         # Now we re-compute the text with the new SpaceAfter values
-        # there MUST be a better way to get the root, but I could't find it...
-        root = node.root
-        txt = root.compute_text()
-        root.text = txt
+        txt = tree.compute_text()
+        tree.text = txt
