@@ -44,3 +44,20 @@ Usually, this results in
 ```bash
 export PATH="$HOME/.local/bin/:$PATH"
 ```
+
+## Use Udapi with "private" blocks
+
+"Private" blocks are blocks written by users and not included within the regular path 
+searched by Udapi (`udapi/block`). They must be imported with a dot prepended to the 
+block name.
+
+Say, for instance, that you have the `Foo` block defined in the `foo.py` module in the 
+located in the `bar` folder in your home. You can easily invoke it with Udapy, but of 
+course you must make sure that `bar` is in your Python path. E.g.:
+
+```bash
+export PYTHONPATH="path/to/bar"
+udapy read.Conllu files=sample.conllu \
+    .Foo option=your_option \
+    write.Conllu
+``` 

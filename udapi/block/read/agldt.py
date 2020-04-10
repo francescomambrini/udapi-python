@@ -49,24 +49,29 @@ class Agldt(BaseReader):
             node.feats = '_'
             parents.append(int(w.attrib["head"]))
             node.deprel = w.attrib["relation"]
+            postag = w.attrib.get("postag")
+            lemma = w.attrib.get("lemma")
             if has_cite:
                 c = w.attrib.get("cite")
                 if c:
-                    node.misc["Ref"] = c.split(":")[-1]
+                    node.misc["Ref"] = c.split(":")[-1] if 'urn:' in c else c
             else:
                 sub = s.attrib.get("subdoc")
                 if sub:
                     node.misc["Ref"] = sub
             if w.attrib.get("insertion_id"):
                 node.misc["NodeType"] = 'Artificial'
-                node.upos = '_'
-                node.xpos = '_'
-                node.lemma = '_'
+                if postag:
+                    node.upos = postag[0]
+                    node.xpos = postag
+                else:
+                    node.upos = '_'
+                    node.xpos = '_'
+                node.lemma = lemma if lemma else '_'
             else:
-                tag = w.attrib["postag"]
-                node.upos = tag[0]
-                node.xpos = tag
-                node.lemma = w.attrib["lemma"]
+                node.upos = postag[0]
+                node.xpos = postag
+                node.lemma = lemma
             nodes.append(node)
 
         for i, n in enumerate(nodes[1:], 1):
