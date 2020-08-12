@@ -9,7 +9,7 @@ from udapi.core.document import Document
 
 
 class Query(Filter):
-    """
+    """c
     Simple subclass of util.filter.Filter that only executes keep_tree_if_node, but accepts python functions as
     its argument
     """

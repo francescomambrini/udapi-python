@@ -1,5 +1,6 @@
 from udapi.core.files import Files
 from lxml import etree
+import logging
 
 
 class AgldtFiles(Files):
@@ -12,6 +13,7 @@ class AgldtFiles(Files):
         if filename is None:
             fhandle = None
         else:
+            logging.debug(f'Opening {filename}')
             x = etree.parse(filename)
             sents = x.xpath("//sentence")
             fhandle = (s for s in sents)

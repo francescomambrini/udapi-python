@@ -26,7 +26,7 @@ punct = [',', '·', ';', '.']
 class SetSpaceAfter(Block):
 
     def _is_krasis(self, node):
-        reg = re.compile(r'^[κχ]$')
+        reg = re.compile(r'^[κχ]-?$')
         if reg.search(node.form):
             return True
         return False

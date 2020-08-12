@@ -4,14 +4,16 @@
 from udapi.core.basereader import BaseReader
 from udapi.core.root import Root
 from udapi.block.agldt.agldt_util.agldtfiles import AgldtFiles
+import logging
 
 
 class Agldt(BaseReader):
     """A reader for plain-text sentences (one sentence per line) files."""
 
-    def __init__(self, files='-', **kwargs):
+    def __init__(self, files='-', fix_cycles=False, **kwargs):
         super().__init__(files, **kwargs)
         self.files = AgldtFiles(files)
+        self.fix_cycles = fix_cycles
 
 
     @staticmethod
@@ -47,7 +49,8 @@ class Agldt(BaseReader):
             node.ord = int(w.attrib["id"])
             node.form = w.attrib["form"]
             node.feats = '_'
-            parents.append(int(w.attrib["head"]))
+            h = int(w.attrib["head"]) if w.attrib.get("head") else 0 
+            parents.append(h)
             node.deprel = w.attrib["relation"]
             postag = w.attrib.get("postag")
             lemma = w.attrib.get("lemma")
@@ -68,13 +71,26 @@ class Agldt(BaseReader):
                     node.upos = '_'
                     node.xpos = '_'
                 node.lemma = lemma if lemma else '_'
-            else:
-                node.upos = postag[0]
+            else:              
+                try:
+                    node.upos = postag[0]
+                except (IndexError, TypeError) as e:
+                    node.upos = 'x'
+                    logging.warning(f"Node {node.address()} has no postag!")
+                    
                 node.xpos = postag
                 node.lemma = lemma
             nodes.append(node)
 
         for i, n in enumerate(nodes[1:], 1):
-            n.parent = nodes[parents[i]]
+            try:
+                n.parent = nodes[parents[i]]
 
+            except ValueError as e:
+                if self.fix_cycles:
+                    logging.warning(f"Ignoring a cycle for node {n.address()} (attaching to the root instead):\n")
+                    n.parent = root
+                else:
+                    raise
+            
         return root

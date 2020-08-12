@@ -4,6 +4,7 @@ from udapi.block.read.agldt import Agldt as AgldtReader
 from udapi.core.document import Document
 
 pedpath = "/home/francesco/Documents/work/Nextcloud/Documents/Projects/Daphne/data/annotation/in_progress/tlg0011/tlg0011.tlg006.daphne_tb-grc1.xml"
+gorman = '/home/francesco/Documents/work/Nextcloud/Documents/Projects/gorman-trees/public/xml/antiphon-1-bu2.xml'
 
 doc = Document()
 pedreader = Pedalion(pedpath)

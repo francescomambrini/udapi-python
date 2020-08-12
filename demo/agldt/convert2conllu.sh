@@ -8,8 +8,19 @@
 # - agldt/createfeats.py : populate the feats colum
 # - agldt/reorderartificials.py : reoder the artificial nodes before their subtree
 
+PASSED=$1
 
-udapy read.Agldt files='!sample_files/*.xml' \
+
+if [ -d "${PASSED}" ] ; then
+  FS="!$PASSED/*.xml";
+# elif [ -f "${PASSED}" ]; then
+#   FS=$PASSED ;
+else
+  FS=$PASSED ;
+fi
+    
+    
+udapy -v read.Agldt files="$FS" fix_cycles=True \
   agldt.SetSpaceAfter \
   agldt.CreateUpos \
   agldt.CreateFeats \

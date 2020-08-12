@@ -7,16 +7,21 @@ lxml.etree is used to insure that the XML string is properly escaped!
 import os
 from udapi.core.basewriter import BaseWriter
 from lxml import etree
+import re
+import logging
+
+reg_speaker = re.compile(r'Speaker=((\w|\W)+$)')
 
 
 class Agldt(BaseWriter):
 
-    def __init__(self, files, cite_el='Ref', namespace="greekLit", **kwargs):
+    def __init__(self, files, cite_el='Ref', includeSpeakers=False, namespace="greekLit", **kwargs):
         """
         :param cite_el: name of the element holding the reference to passage in canonical format; default 'Ref', as
         produced by the reader.Agldt. Warning! cite_el must be an attribute of the misc column.
         """
         self._cite_el = cite_el
+        self._include_speakers = includeSpeakers
         self._namespace = namespace
         super().__init__(files, **kwargs)
 
@@ -35,7 +40,16 @@ class Agldt(BaseWriter):
                 subdoc = str(citable[0])
             else:
                 subdoc = f'{citable[0]}-{citable[-1]}'
-        print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}">')
+
+        if self._include_speakers:
+            try:
+                speaker = reg_speaker.search(tree.comment).group(1)
+            except AttributeError:
+                speaker = ''
+            print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}"> speaker={speaker}')
+
+        else:
+            print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}">')
 
         for node in tree.descendants:
             self.print_word(node)
