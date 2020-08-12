@@ -61,7 +61,9 @@ class FixPunct(Block):
         self.copy_to_enhanced = copy_to_enhanced
 
     def process_tree(self, root):
-        # First, make sure no PUNCT has children
+        # First, make sure no PUNCT has children.
+        # This may introduce multiple subroots, which will be fixed later on
+        # (preventing to temporarily create multiple subroots here would prevent fixing some errors).
         for node in root.descendants:
             while node.parent.upos == "PUNCT":
                 node.parent = node.parent.parent
@@ -84,15 +86,25 @@ class FixPunct(Block):
             if node.upos == "PUNCT" and not self._punct_type[node.ord]:
                 self._fix_subord_punct(node)
 
-        # Finally, check if root is still marked with deprel=root.
-        # This may not hold if the original root was a paired punctuation, which was rehanged.
-        for node in root.children:
-            if node.udeprel != 'root':
-                node.udeprel = 'root'
-                for another_node in root.descendants:
-                    if another_node.parent != root and another_node.udeprel == 'root':
-                        another_node.udeprel = 'punct'
 
+        # UD requires "exactly one word is the head of the sentence, dependent on a notional ROOT", i.e. a single "subroot".
+        # This seems to be a stronger rule than no-PUNCT-children because it is checked by the validator.
+        # So lets prevent multiple subroots (at the cost of possibly re-introducing PUNCT-children).
+        if len(root.children) > 1:
+            selected_subroot = next((n for n in root.children if n.udeprel == 'root'), root.children[0])
+            for a_subroot in root.children:
+                if a_subroot != selected_subroot:
+                    a_subroot.parent = selected_subroot
+
+        # Check if the subroot is still marked with deprel=root.
+        # This may not hold if the original subroot was a paired punctuation, which was rehanged.
+        if root.children[0].udeprel != 'root':
+            root.children[0].udeprel = 'root'
+            for another_node in root.children[0].descendants:
+                if another_node.udeprel == 'root':
+                    another_node.udeprel = 'punct'
+
+        # TODO: This block changes parents not only for PUNCT nodes. These should be reflected into enhanced deps as well.
         if self.copy_to_enhanced:
             for node in root.descendants:
                 if node.upos == "PUNCT":
@@ -135,7 +147,7 @@ class FixPunct(Block):
         # because climbing higher would cause a non-projectivity (the punct would be the gap).
         l_path, r_path = [l_cand], [r_cand]
         if l_cand is None or l_cand.is_root():
-            l_cand = None
+            l_cand, l_path = None, []
         else:
             while (not l_cand.parent.is_root() and l_cand.parent.precedes(node)
                    and not node.precedes(l_cand.descendants(add_self=1)[-1])):
@@ -147,7 +159,8 @@ class FixPunct(Block):
                 r_cand = r_cand.parent
                 r_path.append(r_cand)
 
-        # Filter out candidates which would lead to non-projectivities.
+        # Filter out candidates which would lead to non-projectivities, i.e. bugs
+        # punct-nonproj and punct-nonproj-gap as checked by the UD validator and ud.MarkBugs.
         orig_parent = node.parent
         l_path = [n for n in l_path if n and self._will_be_projective(node, n)]
         r_path = [n for n in r_path if n and self._will_be_projective(node, n)]
@@ -184,7 +197,7 @@ class FixPunct(Block):
 
     def _will_be_projective(self, node, cand):
         node.parent = cand
-        return not node.is_nonprojective()
+        return not node.is_nonprojective() and not self._causes_gap(node)
 
     def _causes_gap(self, node):
         return node.is_nonprojective_gap() and not node.parent.is_nonprojective_gap()
