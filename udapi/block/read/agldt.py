@@ -62,7 +62,7 @@ class Agldt(BaseReader):
                 sub = s.attrib.get("subdoc")
                 if sub:
                     node.misc["Ref"] = sub
-            if w.attrib.get("insertion_id"):
+            if w.attrib.get("insertion_id") or w.attrib.get("artificial"):
                 node.misc["NodeType"] = 'Artificial'
                 if postag:
                     node.upos = postag[0]
@@ -85,7 +85,7 @@ class Agldt(BaseReader):
         for i, n in enumerate(nodes[1:], 1):
             try:
                 n.parent = nodes[parents[i]]
-
+                
             except ValueError as e:
                 if self.fix_cycles:
                     logging.warning(f"Ignoring a cycle for node {n.address()} (attaching to the root instead):\n")

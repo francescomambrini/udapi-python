@@ -15,13 +15,13 @@ reg_speaker = re.compile(r'Speaker=((\w|\W)+$)')
 
 class Agldt(BaseWriter):
 
-    def __init__(self, files, cite_el='Ref', includeSpeakers=False, namespace="greekLit", **kwargs):
+    def __init__(self, files='-', cite_el='Ref', includeSpeakers=False, namespace="greekLit", **kwargs):
         """
         :param cite_el: name of the element holding the reference to passage in canonical format; default 'Ref', as
         produced by the reader.Agldt. Warning! cite_el must be an attribute of the misc column.
         """
         self._cite_el = cite_el
-        self._include_speakers = includeSpeakers
+        self._include_speakers = bool(includeSpeakers)
         self._namespace = namespace
         super().__init__(files, **kwargs)
 
@@ -31,6 +31,7 @@ class Agldt(BaseWriter):
 
     def process_tree(self, tree):
         file_name = os.path.split(tree.bundle.document().meta['loaded_from'])[-1]
+        tree.misc['file_name'] = file_name
         doc_name = os.path.splitext(file_name)[0]
         doc_id = f'urn:cts:{self._namespace}:{doc_name}'
         subdoc = ''
@@ -46,7 +47,7 @@ class Agldt(BaseWriter):
                 speaker = reg_speaker.search(tree.comment).group(1)
             except AttributeError:
                 speaker = ''
-            print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}"> speaker={speaker}')
+            print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}" speaker="{speaker}">')
 
         else:
             print(f'   <sentence id="{tree.sent_id}" document_id="{doc_id}" subdoc="{subdoc}">')

@@ -1,9 +1,6 @@
 """Rehang the artificial nodes before the entire subtree governed by them"""
 
 from udapi.core.block import Block
-import re
-
-art_re = re.compile(r'^E[0-9]+\.([0-9]+)$')
 
 class ReorderArtificials(Block):
 
