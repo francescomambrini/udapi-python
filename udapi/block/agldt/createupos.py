@@ -52,7 +52,9 @@ class CreateUpos(Block):
         elif node.xpos[0] == 'u':
             newupos = 'PUNCT'
         elif node.xpos[0] == 'c':
-            if node.lemma in cord_conjs:
+            if node.deprel == 'AuxC':
+                newupos = 'SCONJ'
+            elif node.lemma in cord_conjs:
                 newupos = "CCONJ"
             else:
                 newupos = 'SCONJ'
